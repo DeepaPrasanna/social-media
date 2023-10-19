@@ -1,7 +1,9 @@
 {
   "name": "backend-e2e",
   "$schema": "../../node_modules/nx/schemas/project-schema.json",
-  "implicitDependencies": ["backend"],
+  "implicitDependencies": [
+    "backend"
+  ],
   "projectType": "application",
   "targets": {
     "e2e": {
