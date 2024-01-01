@@ -1,3 +1,4 @@
+import { User } from '@prisma/client';
 import { Injectable } from '@nestjs/common';
 
 import { CreateUserDto } from './dto';
@@ -15,7 +16,7 @@ export class UsersService {
   //   return `This action returns all users`;
   // }
 
-  async findOneByEmail(email: string) {
+  async findOneByEmail(email: string): Promise<User | null> {
     return await this.userRepository.findOneByEmail(email);
   }
 
