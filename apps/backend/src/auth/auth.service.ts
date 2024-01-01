@@ -1,13 +1,14 @@
 import {
   Injectable,
+  NotFoundException,
   BadRequestException,
   UnauthorizedException,
 } from '@nestjs/common';
+import bcrypt from 'bcrypt';
 import Redis from 'ioredis';
 import { nanoid } from 'nanoid';
-import * as bcrypt from 'bcrypt';
 import { JwtService } from '@nestjs/jwt';
-import { RedisService } from '@liaoliaots/nestjs-redis';
+import { InjectRedis } from '@liaoliaots/nestjs-redis';
 
 import { jwtConstants } from './constants';
 import { UsersService } from '../users/users.service';
@@ -20,13 +21,12 @@ export class AuthService {
   constructor(
     private readonly usersService: UsersService,
     private readonly jwtService: JwtService,
-    private readonly redisService: RedisService
-  ) {
-    this.redis = this.redisService.getClient();
-  }
+    @InjectRedis() private readonly client: Redis
+  ) {}
 
-  async signup(signupDto: SignupDto): Promise<void | string> {
+  async signup(signupDto: SignupDto): Promise<void> {
     const { email, password } = signupDto;
+
     const user = await this.usersService.findOneByEmail(email);
 
     if (user) throw new BadRequestException('User already exists!!');
@@ -46,7 +46,7 @@ export class AuthService {
     const user = await this.usersService.findOneByEmail(email);
 
     if (!user)
-      throw new BadRequestException(
+      throw new NotFoundException(
         "The user doesn't exists! consider signing up!!"
       );
 
@@ -75,7 +75,7 @@ export class AuthService {
 
     const refreshToken = await this.jwtService.signAsync(payload, {
       secret: jwtConstants.refreshSecret,
-      expiresIn: '3600s',
+      expiresIn: '480s',
     });
     return {
       accessToken,
@@ -84,41 +84,37 @@ export class AuthService {
   }
 
   async renewTokens(refreshTokenDto: RefreshTokenDto) {
-    try {
-      const { refreshToken: token } = refreshTokenDto;
+    const { refreshToken: token } = refreshTokenDto;
 
-      // verify refreshToken
-      const payload = await this.jwtService.verifyAsync(token, {
-        secret: jwtConstants.refreshSecret,
-      });
+    // verify refreshToken
+    const payload = await this.jwtService.verifyAsync(token, {
+      secret: jwtConstants.refreshSecret,
+    });
 
-      const { sub, jti } = payload;
+    const { sub, jti } = payload;
 
-      // check if the user has revoked refresh token
+    // check if the user has revoked refresh token
 
-      const data = await this.redis.get(`${jti}:${sub}`);
+    const data = await this.client.get(`${jti}:${sub}`);
 
-      if (data) {
-        throw new UnauthorizedException('Token is invalid');
-      }
-
-      // if its not,  generate new ones
-
-      const updatedPayload = { sub, jti };
-
-      const accessToken = await this.jwtService.signAsync(updatedPayload);
-
-      const refreshToken = await this.jwtService.signAsync(updatedPayload, {
-        secret: jwtConstants.refreshSecret,
-        expiresIn: '3600s',
-      });
-      return {
-        accessToken,
-        refreshToken,
-      };
-    } catch {
-      throw new UnauthorizedException();
+    if (data) {
+      throw new UnauthorizedException('Token is invalid');
     }
+
+    // if its not,  generate new ones
+
+    const updatedPayload = { sub, jti };
+
+    const accessToken = await this.jwtService.signAsync(updatedPayload);
+
+    const refreshToken = await this.jwtService.signAsync(updatedPayload, {
+      secret: jwtConstants.refreshSecret,
+      expiresIn: '480s',
+    });
+    return {
+      accessToken,
+      refreshToken,
+    };
   }
 
   async logout(refreshTokenDto: RefreshTokenDto) {
@@ -135,7 +131,7 @@ export class AuthService {
 
     const key = `${jti}:${sub}`;
 
-    const data = await this.redis.get(key);
+    const data = await this.client.get(key);
 
     if (data) {
       throw new UnauthorizedException('Token is invalid');
@@ -145,6 +141,6 @@ export class AuthService {
 
     const value = Date.now();
     const expiryTimeInSeconds = (exp * 1000 - Date.now()) / 1000;
-    await this.redis.set(key, value, 'EX', Math.ceil(expiryTimeInSeconds));
+    await this.client.set(key, value, 'EX', expiryTimeInSeconds);
   }
 }
