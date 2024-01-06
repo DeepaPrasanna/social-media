@@ -8,9 +8,9 @@ import { Redis } from 'ioredis';
 import { Request } from 'express';
 import { Reflector } from '@nestjs/core';
 import { JwtService } from '@nestjs/jwt';
+import { ConfigService } from '@nestjs/config';
 import { RedisService } from '@liaoliaots/nestjs-redis';
 
-import { jwtConstants } from './constants';
 import { IS_PUBLIC_KEY } from './decorators/public.decorator';
 
 @Injectable()
@@ -19,7 +19,8 @@ export class AuthGuard implements CanActivate {
   constructor(
     private jwtService: JwtService,
     private readonly redisService: RedisService,
-    private reflector: Reflector
+    private reflector: Reflector,
+    private configService: ConfigService
   ) {
     this.redis = this.redisService.getClient();
   }
@@ -41,7 +42,7 @@ export class AuthGuard implements CanActivate {
     }
     try {
       const payload = await this.jwtService.verifyAsync(token, {
-        secret: jwtConstants.secret,
+        secret: this.configService.get('ACCESS_TOKEN_SECRET'),
       });
 
       // check whether the token is already revoked

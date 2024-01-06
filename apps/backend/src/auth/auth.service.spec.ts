@@ -4,11 +4,11 @@ import {
   UnauthorizedException,
 } from '@nestjs/common';
 import bcrypt from 'bcrypt';
+import { ConfigService } from '@nestjs/config';
 import { JwtModule, JwtService } from '@nestjs/jwt';
 import { Test, TestingModule } from '@nestjs/testing';
 import { getRedisToken } from '@liaoliaots/nestjs-redis';
 
-import { jwtConstants } from './constants';
 import { AuthService } from './auth.service';
 import { LoginDto, RefreshTokenDto } from './dto';
 import { UsersModule } from '../users/users.module';
@@ -22,6 +22,21 @@ describe('AuthService', () => {
   let userServiceMock: UsersService;
   let jwtService: JwtService;
 
+  const mockedConfigService = {
+    get(key: string | number) {
+      switch (key) {
+        case 'ACCESS_TOKEN_SECRET':
+          return 'some-secret';
+        case 'ACCESS_TOKEN_EXPIRY':
+          return '240s';
+        case 'REFRESH_TOKEN_SECRET':
+          return 'some-secret';
+        case 'REFRESH_TOKEN_EXPIRY':
+          return '480s';
+      }
+    },
+  };
+
   beforeEach(async () => {
     get = jest.fn();
     set = jest.fn();
@@ -31,9 +46,10 @@ describe('AuthService', () => {
       imports: [
         UsersModule,
         JwtModule.register({
-          // secretOrPrivateKey: 'Secret key',
-          secret: jwtConstants.secret,
-          signOptions: { expiresIn: '240s' },
+          secret: mockedConfigService.get('ACCESS_TOKEN_SECRET'),
+          signOptions: {
+            expiresIn: mockedConfigService.get('ACCESS_TOKEN_EXPIRY'),
+          },
         }),
       ],
       providers: [
@@ -49,6 +65,10 @@ describe('AuthService', () => {
         {
           provide: 'UsersService',
           useValue: { findOneByEmail: jest.fn(), create: jest.fn() },
+        },
+        {
+          provide: ConfigService,
+          useValue: mockedConfigService,
         },
       ],
     }).compile();
@@ -242,7 +262,7 @@ describe('AuthService', () => {
 
       // Assertions
       expect(mockVerifyAsync).toHaveBeenCalledWith('validRefreshToken', {
-        secret: jwtConstants.refreshSecret,
+        secret: mockedConfigService.get('REFRESH_TOKEN_SECRET'),
       });
 
       expect(get).toHaveBeenCalledWith('some-jti:some-user-id');
@@ -326,7 +346,7 @@ describe('AuthService', () => {
 
       // Assertions
       expect(mockVerifyAsync).toHaveBeenCalledWith('validRefreshToken', {
-        secret: jwtConstants.refreshSecret,
+        secret: mockedConfigService.get('REFRESH_TOKEN_SECRET'),
       });
 
       expect(get).toHaveBeenCalledWith('some-jti:some-user-id');

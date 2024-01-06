@@ -10,9 +10,10 @@ import { nanoid } from 'nanoid';
 import { JwtService } from '@nestjs/jwt';
 import { InjectRedis } from '@liaoliaots/nestjs-redis';
 
-import { jwtConstants } from './constants';
+// import { jwtConstants } from './constants';
 import { UsersService } from '../users/users.service';
 import { RefreshTokenDto, SignupDto, LoginDto } from './dto';
+import { ConfigService } from '@nestjs/config';
 
 @Injectable()
 export class AuthService {
@@ -21,6 +22,7 @@ export class AuthService {
   constructor(
     private readonly usersService: UsersService,
     private readonly jwtService: JwtService,
+    private configService: ConfigService,
     @InjectRedis() private readonly client: Redis
   ) {}
 
@@ -74,8 +76,8 @@ export class AuthService {
     });
 
     const refreshToken = await this.jwtService.signAsync(payload, {
-      secret: jwtConstants.refreshSecret,
-      expiresIn: '480s',
+      secret: this.configService.get<string>('REFRESH_TOKEN_SECRET'),
+      expiresIn: this.configService.get<string>('REFRESH_TOKEN_EXPIRY'),
     });
     return {
       accessToken,
@@ -88,7 +90,7 @@ export class AuthService {
 
     // verify refreshToken
     const payload = await this.jwtService.verifyAsync(token, {
-      secret: jwtConstants.refreshSecret,
+      secret: this.configService.get<string>('REFRESH_TOKEN_SECRET'),
     });
 
     const { sub, jti } = payload;
@@ -108,8 +110,8 @@ export class AuthService {
     const accessToken = await this.jwtService.signAsync(updatedPayload);
 
     const refreshToken = await this.jwtService.signAsync(updatedPayload, {
-      secret: jwtConstants.refreshSecret,
-      expiresIn: '480s',
+      secret: this.configService.get<string>('REFRESH_TOKEN_SECRET'),
+      expiresIn: this.configService.get<string>('REFRESH_TOKEN_EXPIRY'),
     });
     return {
       accessToken,
@@ -122,7 +124,7 @@ export class AuthService {
 
     // verify refreshToken
     const payload = await this.jwtService.verifyAsync(refreshToken, {
-      secret: jwtConstants.refreshSecret,
+      secret: this.configService.get<string>('REFRESH_TOKEN_SECRET'),
     });
 
     const { sub, jti, exp } = payload;
