@@ -142,7 +142,8 @@ export class AuthService {
     // if the token is not revoked, then mark the token as blacklisted one by setting its jti_userId as the key in cache memory with the ttl of the secs left until the expiration of that token
 
     const value = Date.now();
-    const expiryTimeInSeconds = (exp * 1000 - Date.now()) / 1000;
+    const expiryTimeInSeconds = Math.ceil((exp * 1000 - Date.now()) / 1000);
+
     await this.client.set(key, value, 'EX', expiryTimeInSeconds);
   }
 }
