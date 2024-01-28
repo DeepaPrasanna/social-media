@@ -5,6 +5,7 @@ import { AuthModule } from './auth/auth.module';
 import { UsersModule } from './users/users.module';
 import { APP_FILTER, HttpAdapterHost } from '@nestjs/core';
 import { PrismaClientExceptionFilter } from 'nestjs-prisma';
+import { PostsModule } from './posts/posts.module';
 
 @Module({
   imports: [
@@ -13,6 +14,7 @@ import { PrismaClientExceptionFilter } from 'nestjs-prisma';
     ConfigModule.forRoot({
       isGlobal: true,
     }),
+    PostsModule,
   ],
   providers: [
     {
