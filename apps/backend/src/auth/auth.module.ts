@@ -15,8 +15,9 @@ import { PrismaModule } from '../prisma/prisma.module';
     AuthService,
     {
       provide: APP_GUARD,
-      useClass: AuthGuard,
+      useExisting: AuthGuard,
     },
+    AuthGuard,
   ],
   controllers: [AuthController],
   imports: [
