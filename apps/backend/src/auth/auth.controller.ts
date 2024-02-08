@@ -6,6 +6,7 @@ import {
   HttpCode,
   HttpStatus,
   Controller,
+  // Get,
 } from '@nestjs/common';
 import { AuthService } from './auth.service';
 import { Public } from './decorators/public.decorator';
@@ -35,7 +36,7 @@ export class AuthController {
     return await this.authService.renewTokens(refreshTokenDto);
   }
 
-  @HttpCode(HttpStatus.OK)
+  @HttpCode(HttpStatus.NO_CONTENT)
   @Post('logout')
   async logout(@Body() refreshTokenDto: RefreshTokenDto) {
     return await this.authService.logout(refreshTokenDto);

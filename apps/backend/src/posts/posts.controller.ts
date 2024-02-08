@@ -7,6 +7,7 @@ import {
   Delete,
   Request,
   HttpCode,
+  HttpStatus,
   Controller,
 } from '@nestjs/common';
 
@@ -32,13 +33,13 @@ export class PostsController {
     return this.postsService.findOne(id);
   }
 
-  @HttpCode(204)
+  @HttpCode(HttpStatus.NO_CONTENT)
   @Patch(':id')
   update(@Param('id') id: string, @Body() updatePostDto: UpdatePostDto) {
     return this.postsService.update(id, updatePostDto);
   }
 
-  @HttpCode(204)
+  @HttpCode(HttpStatus.NO_CONTENT)
   @Delete(':id')
   remove(@Param('id') id: string) {
     return this.postsService.remove(id);
