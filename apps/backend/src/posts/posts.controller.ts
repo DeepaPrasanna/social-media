@@ -4,6 +4,7 @@ import {
   Body,
   Patch,
   Param,
+  Query,
   Delete,
   Request,
   HttpCode,
@@ -26,6 +27,11 @@ export class PostsController {
   @Get()
   findAll(@Request() req) {
     return this.postsService.findAll(req.user);
+  }
+
+  @Get('search')
+  search(@Query('q') q: string) {
+    return this.postsService.search(q);
   }
 
   @Get(':id')

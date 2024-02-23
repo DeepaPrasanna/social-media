@@ -30,4 +30,8 @@ export class PostsService {
   remove(id: string) {
     return this.postRepository.delete(id);
   }
+
+  search(query: string) {
+    return this.postRepository.search(query);
+  }
 }

@@ -35,4 +35,41 @@ export class PostsRepository {
   async delete(id: string) {
     await this.prismaService.post.delete({ where: { id } });
   }
+
+  async search(query: string) {
+    return await this.prismaService.post.aggregateRaw({
+      pipeline: [
+        {
+          $search: {
+            index: 'title',
+            text: {
+              query,
+              path: 'description',
+              fuzzy: {},
+            },
+          },
+        },
+        {
+          $lookup: {
+            from: 'users',
+            localField: 'authorId',
+            foreignField: '_id',
+            as: 'author',
+          },
+        },
+        {
+          $unwind: '$author',
+        },
+        {
+          $project: {
+            description: 1,
+            createdOn: 1,
+            'author.firstName': 1,
+            'author.lastName': 1,
+            'author._id': 1,
+          },
+        },
+      ],
+    });
+  }
 }
