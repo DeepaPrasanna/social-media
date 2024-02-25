@@ -1,7 +1,7 @@
 import { Injectable } from '@nestjs/common';
 
 import { PostsRepository } from './repositories';
-import { CreatePostDto, UpdatePostDto } from './dto';
+import { CreatePostDto, SharePostDto, UpdatePostDto } from './dto';
 
 @Injectable()
 export class PostsService {
@@ -16,7 +16,11 @@ export class PostsService {
   async findAll(user) {
     const { sub: userId } = user;
 
-    return await this.postRepository.findAll(userId);
+    const posts = await this.postRepository.findAll(userId);
+
+    const sharedPosts = await this.postRepository.getSharedPosts(userId);
+
+    return { posts, sharedPosts };
   }
 
   async findOne(id: string) {
@@ -33,5 +37,9 @@ export class PostsService {
 
   search(query: string) {
     return this.postRepository.search(query);
+  }
+
+  share(id: string, sharePostDto: SharePostDto) {
+    return this.postRepository.share(id, sharePostDto);
   }
 }

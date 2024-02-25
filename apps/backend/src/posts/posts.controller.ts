@@ -13,7 +13,7 @@ import {
 } from '@nestjs/common';
 
 import { PostsService } from './posts.service';
-import { CreatePostDto, UpdatePostDto } from './dto';
+import { CreatePostDto, SharePostDto, UpdatePostDto } from './dto';
 
 @Controller('posts')
 export class PostsController {
@@ -37,6 +37,11 @@ export class PostsController {
   @Get(':id')
   findOne(@Param('id') id: string) {
     return this.postsService.findOne(id);
+  }
+
+  @Post(':id/share')
+  share(@Param('id') id: string, @Body() sharePostDto: SharePostDto) {
+    return this.postsService.share(id, sharePostDto);
   }
 
   @HttpCode(HttpStatus.NO_CONTENT)
