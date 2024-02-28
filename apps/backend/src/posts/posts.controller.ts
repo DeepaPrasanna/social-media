@@ -10,7 +10,11 @@ import {
   HttpCode,
   HttpStatus,
   Controller,
+  UploadedFile,
+  UseInterceptors,
+  ParseFilePipeBuilder,
 } from '@nestjs/common';
+import { FileInterceptor } from '@nestjs/platform-express';
 
 import { PostsService } from './posts.service';
 import { CreatePostDto, SharePostDto, UpdatePostDto } from './dto';
@@ -20,8 +24,18 @@ export class PostsController {
   constructor(private readonly postsService: PostsService) {}
 
   @Post()
-  create(@Body() createPostDto: CreatePostDto, @Request() req) {
-    return this.postsService.create(createPostDto, req.user);
+  @UseInterceptors(FileInterceptor('file'))
+  create(
+    @Body() createPostDto: CreatePostDto,
+    @Request() req,
+    @UploadedFile(
+      new ParseFilePipeBuilder().build({
+        fileIsRequired: false,
+      })
+    )
+    file?: Express.Multer.File
+  ) {
+    return this.postsService.create(createPostDto, req.user, file);
   }
 
   @Get()

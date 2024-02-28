@@ -8,12 +8,12 @@ import bcrypt from 'bcrypt';
 import Redis from 'ioredis';
 import { nanoid } from 'nanoid';
 import { JwtService } from '@nestjs/jwt';
+import { ConfigService } from '@nestjs/config';
 import { InjectRedis } from '@liaoliaots/nestjs-redis';
 
 // import { jwtConstants } from './constants';
 import { UsersService } from '../users/users.service';
 import { RefreshTokenDto, SignupDto, LoginDto } from './dto';
-import { ConfigService } from '@nestjs/config';
 
 @Injectable()
 export class AuthService {

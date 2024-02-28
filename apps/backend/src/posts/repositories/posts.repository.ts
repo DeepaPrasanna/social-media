@@ -7,11 +7,20 @@ import { PrismaService } from '../../prisma/prisma.service';
 export class PostsRepository {
   constructor(private readonly prismaService: PrismaService) {}
 
-  async create(createPostDto: CreatePostDto, userId: string): Promise<void> {
+  async create(
+    createPostDto: CreatePostDto,
+    userId: string,
+    imageUrl: string
+  ): Promise<void> {
     const { description } = createPostDto;
 
     await this.prismaService.post.create({
-      data: { description, authorId: userId, createdOn: new Date() },
+      data: {
+        description,
+        authorId: userId,
+        createdOn: new Date(),
+        image: imageUrl,
+      },
     });
   }
 
@@ -33,6 +42,7 @@ export class PostsRepository {
         },
         {
           $project: {
+            authorId: 1,
             description: 1,
             createdOn: 1,
             numberOfShares: { $size: '$sharedPosts' },

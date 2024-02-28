@@ -14,6 +14,7 @@ model User {
   lastName   String
   password   String
   contact    Int          @db.Long
+  profileUrl String?
   posts      Post[]
   SharedPost SharedPost[]
 
@@ -23,10 +24,11 @@ model User {
 model Post {
   id          String       @id @default(auto()) @map("_id") @db.ObjectId
   description String
-  author      User         @relation(fields: [authorId], references: [id])
+  author      User         @relation(fields: [authorId], references: [id], onDelete: Cascade)
   authorId    String       @db.ObjectId
   createdOn   DateTime
   updatedAt   DateTime?
+  image       String?
   SharedPost  SharedPost[]
 
   @@map("posts")
@@ -34,9 +36,9 @@ model Post {
 
 model SharedPost {
   id     String @id @default(auto()) @map("_id") @db.ObjectId
-  post   Post   @relation(fields: [postId], references: [id])
+  post   Post   @relation(fields: [postId], references: [id],)
   postId String @db.ObjectId
-  User   User   @relation(fields: [userId], references: [id])
+  User   User   @relation(fields: [userId], references: [id], onDelete: Cascade)
   userId String @db.ObjectId
 
   @@map("shared-posts")
