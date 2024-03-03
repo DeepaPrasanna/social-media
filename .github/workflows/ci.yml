@@ -10,6 +10,11 @@ on:
       - main
       - development
 
+  # Needed for nx-set-shas within nx-cloud-main.yml, when run on the main branch
+permissions:
+  actions: read
+  contents: read
+
 jobs:
   # build:
   #   runs-on: ubuntu-latest
