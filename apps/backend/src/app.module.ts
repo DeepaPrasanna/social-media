@@ -8,6 +8,8 @@ import { AuthModule } from './auth/auth.module';
 import { UsersModule } from './users/users.module';
 import { PostsModule } from './posts/posts.module';
 
+import { AppController } from './app.controller';
+
 @Module({
   imports: [
     AuthModule,
