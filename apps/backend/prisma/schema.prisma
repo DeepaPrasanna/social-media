@@ -1,0 +1,45 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "mongodb"
+  url      = env("DATABASE_URL")
+}
+
+model User {
+  id         String       @id @default(auto()) @map("_id") @db.ObjectId
+  email      String       @unique
+  firstName  String
+  lastName   String
+  password   String
+  contact    Int          @db.Long
+  profileUrl String?
+  posts      Post[]
+  SharedPost SharedPost[]
+
+  @@map("users")
+}
+
+model Post {
+  id          String       @id @default(auto()) @map("_id") @db.ObjectId
+  description String
+  author      User         @relation(fields: [authorId], references: [id], onDelete: Cascade)
+  authorId    String       @db.ObjectId
+  createdOn   DateTime
+  updatedAt   DateTime?
+  image       String?
+  SharedPost  SharedPost[]
+
+  @@map("posts")
+}
+
+model SharedPost {
+  id     String @id @default(auto()) @map("_id") @db.ObjectId
+  post   Post   @relation(fields: [postId], references: [id])
+  postId String @db.ObjectId
+  User   User   @relation(fields: [userId], references: [id], onDelete: Cascade)
+  userId String @db.ObjectId
+
+  @@map("shared-posts")
+}

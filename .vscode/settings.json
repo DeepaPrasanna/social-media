@@ -1,0 +1,4 @@
+{
+  "conventionalCommits.scopes": ["backend"],
+  "typescript.tsdk": "node_modules/typescript/lib"
+}
