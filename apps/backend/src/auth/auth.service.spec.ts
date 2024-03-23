@@ -136,6 +136,7 @@ describe('AuthService', () => {
         ...user,
         id: 'some-user-id',
         contact: +user.contact,
+        profileUrl: null,
       });
 
       // Call the signup method and expect it to throw a BadRequestException
@@ -159,6 +160,7 @@ describe('AuthService', () => {
         email: 'john@test.com',
         contact: 1234567890,
         password: 'hashedPassword',
+        profileUrl: null,
       };
       jest.spyOn(userServiceMock, 'findOneByEmail').mockResolvedValue(mockUser);
 
@@ -220,6 +222,7 @@ describe('AuthService', () => {
         contact: 1234567890,
         email: 'test@example.com',
         password: 'hashedPassword',
+        profileUrl: null,
       };
 
       jest.spyOn(userServiceMock, 'findOneByEmail').mockResolvedValue(mockUser);
@@ -296,25 +299,6 @@ describe('AuthService', () => {
       // Clean up
       mockVerifyAsync.mockRestore();
     });
-
-    // it('should throw UnauthorizedException for expired refresh token', async () => {
-    //   const refreshTokenDto: RefreshTokenDto = {
-    //     refreshToken: 'expiredRefreshToken',
-    //   };
-
-    //   // Mock the jwtService.verifyAsync method to throw an error indicating an expired token
-    //   const mockVerifyAsync = jest
-    //     .spyOn(jwtService, 'verifyAsync')
-    //     .mockRejectedValueOnce({ name: 'TokenExpiredError' });
-
-    //   // Call the renewTokens method and expect it to throw an UnauthorizedException
-    //   await expect(
-    //     authService.renewTokens(refreshTokenDto)
-    //   ).rejects.toThrowError(UnauthorizedException);
-
-    //   // Clean up
-    //   mockVerifyAsync.mockRestore();
-    // });
   });
 
   describe('logout', () => {
@@ -382,24 +366,5 @@ describe('AuthService', () => {
       // Clean up
       mockVerifyAsync.mockRestore();
     });
-
-    // it('should throw UnauthorizedException for expired refresh token', async () => {
-    //   const refreshTokenDto: RefreshTokenDto = {
-    //     refreshToken: 'expiredRefreshToken',
-    //   };
-
-    //   // Mock the jwtService.verifyAsync method to throw an error indicating an expired token
-    //   const mockVerifyAsync = jest
-    //     .spyOn(jwtService, 'verifyAsync')
-    //     .mockRejectedValueOnce({ name: 'TokenExpiredError' });
-
-    //   // Call the renewTokens method and expect it to throw an UnauthorizedException
-    //   await expect(
-    //     authService.renewTokens(refreshTokenDto)
-    //   ).rejects.toThrowError(UnauthorizedException);
-
-    //   // Clean up
-    //   mockVerifyAsync.mockRestore();
-    // });
   });
 });

@@ -1,9 +1,9 @@
 import { Test, TestingModule } from '@nestjs/testing';
+import { UnauthorizedException } from '@nestjs/common';
 
 import { AuthService } from './auth.service';
 import { AuthController } from './auth.controller';
 import { LoginDto, RefreshTokenDto, SignupDto } from './dto';
-import { UnauthorizedException } from '@nestjs/common';
 
 describe('AuthController', () => {
   let authController: AuthController;

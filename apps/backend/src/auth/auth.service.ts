@@ -11,14 +11,11 @@ import { JwtService } from '@nestjs/jwt';
 import { ConfigService } from '@nestjs/config';
 import { InjectRedis } from '@liaoliaots/nestjs-redis';
 
-// import { jwtConstants } from './constants';
 import { UsersService } from '../users/users.service';
 import { RefreshTokenDto, SignupDto, LoginDto } from './dto';
 
 @Injectable()
 export class AuthService {
-  private readonly redis: Redis;
-
   constructor(
     private readonly usersService: UsersService,
     private readonly jwtService: JwtService,
